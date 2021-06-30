@@ -1,15 +1,25 @@
 package com.fly.serverless.controller;
 
+import com.fly.serverless.jdbc.Jdbc;
+import javassist.CannotCompileException;
+import javassist.ClassPool;
+import javassist.CtClass;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.AnnotatedElementUtils;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
+import java.io.IOException;
 import java.lang.reflect.Method;
-import java.net.URLClassLoader;
+import java.security.ProtectionDomain;
+import java.time.LocalDateTime;
+import java.util.List;
 
 import static java.util.Objects.isNull;
 
@@ -27,10 +37,43 @@ public class ServerlessController {
 
     private final RequestMappingHandlerMapping requestMappingHandlerMapping;
 
-    @PostMapping("api")
-    public void loadApiClass(@RequestParam MultipartFile classFile) {
+    private final JdbcTemplate jdbcTemplate;
 
-        MyController controller = new MyController();
+    private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+
+    @PostMapping("sql")
+    @Transactional(rollbackFor = Exception.class)
+    public void executeSql(@RequestParam String sql) {
+
+        log.info("sql = {}", sql);
+
+        List<LocalDateTime> timeList = Jdbc.selectList("select time from tb_test", LocalDateTime.class, null);
+
+        System.out.println(timeList);
+
+    }
+
+    /**
+     * 删除对应的url
+     * @param url   url
+     */
+    @DeleteMapping("api")
+    public void deleteApi(@RequestParam String url) {
+
+    }
+
+
+    @PostMapping("class")
+    public void loadApiClass(@RequestPart MultipartFile file) throws Exception {
+
+        String filename = file.getOriginalFilename();
+        long size = file.getSize();
+
+        log.info("- receive class file: {}, size: {}", filename, size);
+
+        Class<?> controllerClass = getClassByFile(file);
+
+        Object controller = controllerClass.newInstance();
 
         Method[] methods = controller.getClass().getDeclaredMethods();
         for (Method method : methods) {
@@ -38,6 +81,30 @@ public class ServerlessController {
         }
     }
 
+    /**
+     * 将传入的class文件转为java Class
+     *
+     * @param file  上传的class文件
+     * @return      Class
+     * @throws IOException              IOException
+     * @throws CannotCompileException   CannotCompileException
+     */
+    private Class<?> getClassByFile(MultipartFile file) throws IOException, CannotCompileException {
+        ClassPool pool = ClassPool.getDefault();
+
+        CtClass ctClass = pool.makeClass(file.getInputStream());
+
+        ClassLoader classLoader = getClass().getClassLoader();
+        ProtectionDomain protectionDomain = getClass().getProtectionDomain();
+
+        return ctClass.toClass(classLoader, protectionDomain);
+    }
+
+    /**
+     * 将方法注册到spring mvc的处理器映射器中
+     * @param controller    controller
+     * @param method        方法
+     */
     private void registerMethod(Object controller, Method method) {
 
         RequestMapping requestMapping =
