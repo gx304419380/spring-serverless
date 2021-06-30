@@ -64,7 +64,8 @@ public class ServerlessController {
 
 
     @PostMapping("class")
-    public void loadApiClass(@RequestPart MultipartFile file) throws IOException, CannotCompileException, IllegalAccessException, InstantiationException {
+    public void loadApiClass(@RequestPart MultipartFile file)
+            throws IOException, CannotCompileException, IllegalAccessException, InstantiationException {
 
         String filename = file.getOriginalFilename();
         long size = file.getSize();
