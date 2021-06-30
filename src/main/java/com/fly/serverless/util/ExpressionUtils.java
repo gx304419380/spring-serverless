@@ -1,5 +1,6 @@
 package com.fly.serverless.util;
 
+import lombok.experimental.UtilityClass;
 import org.springframework.context.expression.MapAccessor;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
@@ -12,6 +13,7 @@ import java.util.Map;
  * @version 1.0.0
  * @since 2021/6/29
  */
+@UtilityClass
 public class ExpressionUtils {
 
     private static final SpelExpressionParser PARSER = new SpelExpressionParser();

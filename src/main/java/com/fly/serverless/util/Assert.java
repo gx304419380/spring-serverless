@@ -1,6 +1,7 @@
 package com.fly.serverless.util;
 
 import com.fly.serverless.common.BaseException;
+import lombok.experimental.UtilityClass;
 
 import java.util.Objects;
 
@@ -9,6 +10,7 @@ import java.util.Objects;
  * @version 1.0.0
  * @since 2021/6/10
  */
+@UtilityClass
 public class Assert {
 
 

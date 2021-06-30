@@ -23,8 +23,8 @@ public class JdbcFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
 
-        DataSource dataSource = getDataSourceByRequest(request);
-        Jdbc.setDataSource(dataSource);
+        DataSource source = getDataSourceByRequest(request);
+        Jdbc.setDataSource(source);
 
         try {
             chain.doFilter(request, response);

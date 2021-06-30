@@ -1,5 +1,6 @@
 package com.fly.serverless.util;
 
+import com.fly.serverless.common.BaseException;
 import javassist.*;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -86,7 +87,7 @@ public class Copy {
             Class<?> type = converterClass.toClass(Copy.class.getClassLoader(), Copy.class.getProtectionDomain());
             return (Converter) type.newInstance();
         } catch (Exception e) {
-            throw new RuntimeException("- generate converter error", e);
+            throw new BaseException(e);
         }
     }
 

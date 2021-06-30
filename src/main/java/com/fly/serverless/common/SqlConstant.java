@@ -1,5 +1,7 @@
 package com.fly.serverless.common;
 
+import lombok.experimental.UtilityClass;
+
 import java.util.regex.Pattern;
 
 /**
@@ -7,6 +9,7 @@ import java.util.regex.Pattern;
  * @version 1.0.0
  * @since 2021/6/22
  */
+@UtilityClass
 public class SqlConstant {
     public static final Integer SQL_ERROR_CODE = 1;
     public static final String SQL_ERROR = "SQL has error";
